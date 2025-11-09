@@ -6,30 +6,47 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare } from "lucide-react";
+import { login } from "@/lib/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
-    // Mock login - in real app would call API
-    if (username && password) {
-      localStorage.setItem("username", username);
-      toast({
-        title: "Login successful",
-        description: `Welcome back, ${username}!`,
-      });
-      navigate("/chat");
-    } else {
+    try {
+      const response = await login({ username, password });
+      
+      if (response.success) {
+        localStorage.setItem("username", username);
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+        }
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${username}!`,
+        });
+        navigate("/chat");
+      } else {
+        toast({
+          title: "Login failed",
+          description: response.message || "Invalid credentials",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
         title: "Login failed",
-        description: "Please enter username and password",
+        description: "An error occurred during login",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,8 +86,8 @@ const Login = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>

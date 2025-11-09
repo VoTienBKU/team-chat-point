@@ -1,25 +1,37 @@
+import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users } from "lucide-react";
+import { getUserChannels, User } from "@/lib/api";
 
 interface UserListProps {
   currentChannel: string | null;
 }
 
-interface User {
-  username: string;
-  ip: string;
-  port: number;
-}
-
 const UserList = ({ currentChannel }: UserListProps) => {
-  // Mock users data - would come from API in real app
-  const users: User[] = currentChannel
-    ? [
-        { username: "votien", ip: "192.168.1.100", port: 8000 },
-        { username: "user2", ip: "192.168.1.101", port: 8001 },
-        { username: "user3", ip: "192.168.1.102", port: 8002 },
-      ]
-    : [];
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!currentChannel) {
+      setUsers([]);
+      return;
+    }
+
+    const loadUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await getUserChannels(currentChannel);
+        setUsers(response.users);
+      } catch (error) {
+        console.error("Failed to load users:", error);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, [currentChannel]);
 
   return (
     <div className="w-64 bg-card border-l border-border flex flex-col">
@@ -32,7 +44,11 @@ const UserList = ({ currentChannel }: UserListProps) => {
 
       <ScrollArea className="flex-1">
         <div className="p-2">
-          {users.length === 0 ? (
+          {loading ? (
+            <div className="text-sm text-muted-foreground text-center py-4">
+              Loading...
+            </div>
+          ) : users.length === 0 ? (
             <div className="text-sm text-muted-foreground text-center py-4">
               {currentChannel ? "No members" : "Select a channel"}
             </div>
