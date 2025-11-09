@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare } from "lucide-react";
 import { login } from "@/lib/api";
+import { setCookie } from "@/lib/cookies";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -23,9 +24,9 @@ const Login = () => {
       const response = await login({ username, password });
       
       if (response.success) {
-        localStorage.setItem("username", username);
+        setCookie("username", username, 7);
         if (response.token) {
-          localStorage.setItem("token", response.token);
+          setCookie("token", response.token, 7);
         }
         toast({
           title: "Login successful",

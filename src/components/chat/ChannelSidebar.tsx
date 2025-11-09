@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Hash, Plus, LogOut, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getCookie, deleteCookie } from "@/lib/cookies";
 
 interface ChannelSidebarProps {
   channels: string[];
@@ -44,11 +45,12 @@ const ChannelSidebar = ({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("username");
+    deleteCookie("username");
+    deleteCookie("token");
     navigate("/");
   };
 
-  const username = localStorage.getItem("username") || "User";
+  const username = getCookie("username") || "User";
 
   return (
     <div className="w-64 bg-card border-r border-border flex flex-col">

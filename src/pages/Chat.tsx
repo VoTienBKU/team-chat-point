@@ -5,6 +5,7 @@ import ChatArea from "@/components/chat/ChatArea";
 import UserList from "@/components/chat/UserList";
 import { getMyChannels, createChannel, joinChannel } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { getCookie } from "@/lib/cookies";
 
 const Chat = () => {
   const [currentChannel, setCurrentChannel] = useState<string | null>(null);
@@ -13,7 +14,7 @@ const Chat = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const username = localStorage.getItem("username");
+    const username = getCookie("username");
     if (!username) {
       navigate("/");
       return;
